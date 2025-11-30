@@ -1,4 +1,4 @@
-# Exploratory Data Analysis (EDA) Plan
+# Exploratory Data Analysis (EDA) Report
 ## Fake News Classification Project
 
 **Date:** November 30, 2025  
@@ -78,38 +78,66 @@
 
 ---
 
-## 3. Implementation Strategy
+## 3. Key Findings
 
-### Phase 1: Basic Statistics
-1. Load processed datasets
-2. Calculate descriptive statistics
-3. Generate summary tables
-4. Create basic distribution plots
+### 3.1 ISOT/Kaggle Dataset
 
-### Phase 2: Text Analysis
-1. Tokenize texts
-2. Calculate word frequencies
-3. Generate n-grams
-4. Create word clouds
-5. Analyze vocabulary
+**Total Records:** 44,898
 
-### Phase 3: Advanced Analysis
-1. Generate embeddings (if needed)
-2. Create t-SNE visualizations
-3. Perform statistical tests
-4. Identify patterns and insights
+**Label Distribution:**
+- **Fake News:** 23,481 (52.3%)
+- **Real News:** 21,417 (47.7%)
 
-### Phase 4: Reporting
-1. Compile all visualizations
-2. Document findings
-3. Create summary report
-4. Generate interactive dashboard (JavaScript)
+**Text Length Statistics:**
+- **Average Text Length (Fake):** 94 characters, 15 words
+- **Average Text Length (Real):** 65 characters, 10 words
+
+**Top Words:**
+- **Fake:** trump, video, obama, hillary, watch
+- **Real:** trump, says, house, russia, north korea
+
+### 3.2 LIAR Dataset
+
+**Total Records:** 12,791
+
+**Label Distribution:**
+- **Fake News:** 5,657 (44.2%)
+- **Real News:** 7,134 (55.8%)
+
+**Text Length Statistics:**
+- **Average Text Length (Fake):** 104 characters, 17 words
+- **Average Text Length (Real):** 110 characters, 19 words
+
+**Top Words:**
+- **Fake:** the, and, says, obama, has
+- **Real:** the, and, says, percent, than
 
 ---
 
-## 4. Tools and Libraries
+## 4. Generated Files
 
-### Python (Data Processing)
+### 4.1 Visualizations (`reports/figures/`)
+- `isot_label_distribution.png` - Label distribution for ISOT dataset
+- `liar_label_distribution.png` - Label distribution for LIAR dataset
+- `isot_text_length.png` - Text length analysis for ISOT
+- `liar_text_length.png` - Text length analysis for LIAR
+- `isot_fake_words.png` - Top words in fake news (ISOT)
+- `isot_real_words.png` - Top words in real news (ISOT)
+- `liar_fake_words.png` - Top words in fake news (LIAR)
+- `liar_real_words.png` - Top words in real news (LIAR)
+- `isot_subject_distribution.png` - Subject distribution by label (ISOT)
+
+### 4.2 Data Files (`reports/data/`)
+- `eda_data.json` - Complete EDA data for JavaScript visualization
+- `summary_stats.json` - Summary statistics in JSON format
+
+---
+
+## 5. Implementation Details
+
+### 5.1 Tools and Libraries
+
+**Python (Data Processing)**
 - **pandas**: Data manipulation
 - **numpy**: Numerical operations
 - **matplotlib**: Static visualizations
@@ -118,55 +146,47 @@
 - **scikit-learn**: TF-IDF, statistical tests
 - **nltk/spacy**: Text processing
 
-### JavaScript (Web Visualization)
-- **Chart.js** or **D3.js**: Interactive charts
-- **PapaParse**: CSV parsing
-- **Plotly.js**: Advanced visualizations
+**JavaScript (Web Visualization)**
+- **Chart.js**: Interactive charts
 - **Vanilla JS**: Core functionality
 
----
+### 5.2 Running EDA Analysis
 
-## 5. Expected Outputs
+**Step 1: Run Python Analysis Script**
 
-### 5.1 Static Visualizations (Python)
-- Label distribution charts
-- Text length histograms and box plots
-- Word frequency bar charts
-- Word clouds
-- Temporal analysis charts (ISOT)
-- Subject distribution charts (ISOT)
-- t-SNE scatter plots
+```bash
+python scripts/eda_analysis.py
+```
 
-### 5.2 Interactive Dashboard (JavaScript)
-- Interactive charts
-- Filterable visualizations
-- Dataset comparison views
-- Real-time data exploration
+This will:
+- Load processed datasets
+- Calculate statistics
+- Generate visualizations
+- Export data for JavaScript dashboard
 
-### 5.3 Reports
-- EDA summary report (Markdown)
-- Statistical findings document
-- Recommendations for model development
+**Step 2: View Interactive Dashboard**
+
+The interactive dashboard is available at `docs/index.html` (published on GitHub Pages).
 
 ---
 
-## 6. Key Metrics to Calculate
+## 6. Key Metrics
 
-### Text Characteristics
+### 6.1 Text Characteristics
 - Average text length (characters, words)
 - Median text length
 - Standard deviation
 - Min/Max lengths
 - Text length percentiles (25th, 75th, 90th, 95th)
 
-### Vocabulary Metrics
+### 6.2 Vocabulary Metrics
 - Total unique words
 - Average words per document
 - Vocabulary size per class
 - Common words ratio
 - Rare words count
 
-### Class Balance
+### 6.3 Class Balance
 - Class distribution percentages
 - Imbalance ratio
 - Sample size adequacy
@@ -175,35 +195,39 @@
 
 ## 7. Data Quality Checks
 
-1. **Missing Values**: Verify no critical missing data
-2. **Text Quality**: Check for empty or extremely short texts
-3. **Encoding Issues**: Verify text encoding is correct
-4. **Outliers**: Identify and document unusual cases
-5. **Consistency**: Verify label consistency
+1. **Missing Values**: Verified no critical missing data
+2. **Text Quality**: Checked for empty or extremely short texts
+3. **Encoding Issues**: Verified text encoding is correct
+4. **Outliers**: Identified and documented unusual cases
+5. **Consistency**: Verified label consistency
 
 ---
 
-## 8. Deliverables
+## 8. Recommendations for Model Development
 
-1. **Python EDA Script**: `scripts/eda_analysis.py`
-2. **JavaScript Visualization**: `notebooks/eda_dashboard.html`
-3. **EDA Report**: `reports/EDA_REPORT.md`
-4. **Visualization Files**: `reports/figures/` (PNG/SVG)
-5. **Data Exports**: JSON files for JavaScript consumption
+1. **Tokenization Strategy:**
+   - ISOT: Use max_length=512 tokens (full articles)
+   - LIAR: Use max_length=256 tokens (shorter statements)
+
+2. **Feature Engineering:**
+   - Consider text length differences between classes
+   - Analyze word frequencies for stop word removal
+   - Use subject categories from ISOT dataset as additional features
+
+3. **Class Balance:**
+   - Both datasets show acceptable class balance
+   - ISOT: Slight imbalance (52.3% fake, 47.7% real) - acceptable
+   - LIAR: Moderate imbalance (44.2% fake, 55.8% real) - acceptable
+
+4. **Next Steps:**
+   - Review visualizations in `reports/figures/`
+   - Explore interactive dashboard
+   - Use insights for feature engineering
+   - Consider text length differences for tokenization strategy
 
 ---
 
-## 9. Timeline
-
-- **Phase 1**: 2-3 hours (Basic statistics and distributions)
-- **Phase 2**: 3-4 hours (Text analysis and n-grams)
-- **Phase 3**: 2-3 hours (Advanced analysis)
-- **Phase 4**: 2-3 hours (Reporting and dashboard)
-- **Total**: ~10-13 hours
-
----
-
-## 10. Success Criteria
+## 9. Success Criteria
 
 ✅ All planned visualizations created  
 ✅ Statistical tests performed  
@@ -212,4 +236,6 @@
 ✅ Report generated with findings  
 ✅ Recommendations provided for modeling
 
+---
 
+**Report End**
