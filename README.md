@@ -152,7 +152,27 @@ python scripts/analyze_and_integrate.py
 
 # Verify processed data
 python scripts/verify_processed_data.py
+
+# Generate EDA dashboard
+python scripts/eda_analysis.py
 ```
+
+## EDA Dashboard (GitHub Pages)
+
+Интерактивный дашборд с результатами EDA доступен на GitHub Pages:
+
+- **Онлайн**: После настройки GitHub Pages дашборд будет доступен по адресу: `https://[ваш-username].github.io/[название-репозитория]/`
+- **Локально**: Откройте `docs/index.html` в браузере
+
+### Настройка GitHub Pages
+
+1. Перейдите в **Settings → Pages** вашего репозитория
+2. В разделе "Source" выберите:
+   - Branch: `main` (или ваша основная ветка)
+   - Folder: `/docs`
+3. Нажмите **Save**
+
+Подробные инструкции см. в [docs/README.md](docs/README.md)
 
 ### Project Structure
 
@@ -175,6 +195,9 @@ For detailed information about the project structure, see [PROJECT_STRUCTURE.md]
 ├── notebooks/                 # Jupyter notebooks for EDA and training
 ├── models/                    # Saved trained models
 ├── reports/                    # Analysis reports
+├── docs/                      # GitHub Pages documentation and EDA dashboard
+│   ├── index.html             # EDA Dashboard (published on GitHub Pages)
+│   └── data/                  # Data files for the dashboard
 ├── requirements.txt           # Python dependencies
 └── README.md
 ```
