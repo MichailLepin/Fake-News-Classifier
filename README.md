@@ -1,4 +1,4 @@
-# Fake News Classifier
+﻿# Fake News Classifier
 
 ## Project Description
 
@@ -161,8 +161,8 @@ python scripts/eda_analysis.py
 
 Интерактивный дашборд с результатами EDA доступен на GitHub Pages:
 
-- **Онлайн**: После настройки GitHub Pages дашборд будет доступен по адресу: `https://[ваш-username].github.io/[название-репозитория]/`
-- **Локально**: Откройте `docs/index.html` в браузере
+- **Online**: After setting up GitHub Pages, the dashboard will be available at: `https://[your-username].github.io/[repository-name]/`
+- **Local**: Open `docs/index.html` in a web browser
 
 ### Настройка GitHub Pages
 
@@ -211,3 +211,4 @@ MIT License
 ## Authors
 
 Fake News Classification Project Team
+

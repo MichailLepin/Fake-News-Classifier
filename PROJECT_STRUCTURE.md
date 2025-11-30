@@ -36,18 +36,38 @@ This document describes the standard project structure for the Fake News Classif
 │
 ├── scripts/                   # Standalone scripts
 │   ├── analyze_and_integrate.py
-│   └── verify_processed_data.py
+│   ├── eda_analysis.py
+│   ├── verify_processed_data.py
+│   └── convert_py_to_ipynb.py  # Utility for converting .py to .ipynb
 │
 ├── notebooks/                  # Jupyter notebooks for EDA and experiments
+│   ├── lstm_training.ipynb    # LSTM model training notebook (Colab-ready)
+│   ├── cnn_training.ipynb      # CNN model training notebook (Colab-ready)
+│   ├── lstm_training.py        # LSTM training script (alternative)
+│   ├── cnn_training.py         # CNN training script (alternative)
+│   ├── eda_dashboard.html      # Interactive EDA dashboard
+│   ├── COLAB_SETUP.md          # Colab setup instructions
+│   └── README.md               # Notebooks documentation
 │
-├── models/                    # Saved trained models
+├── docs/                       # GitHub Pages documentation
+│   ├── index.html              # EDA Dashboard (GitHub Pages)
+│   ├── data/                   # Data for dashboard
+│   ├── README.md               # GitHub Pages setup
+│   └── GITHUB_PAGES_SETUP.md   # Detailed setup guide
+│
+├── models/                     # Saved trained models
 │
 ├── reports/                    # Analysis reports and documentation
-│   └── DATA_ANALYSIS_REPORT.md
+│   ├── data/                   # Analysis data files
+│   ├── figures/                # Generated visualizations
+│   ├── DATA_ANALYSIS_REPORT.md
+│   ├── EDA_PLAN.md
+│   └── EDA_README.md
 │
 ├── requirements.txt           # Python dependencies
 ├── .gitignore                 # Git ignore rules
-└── README.md                   # Project documentation
+├── PROJECT_STRUCTURE.md      # This file
+└── README.md                  # Project documentation
 ```
 
 ## Directory Descriptions
@@ -65,17 +85,27 @@ This document describes the standard project structure for the Fake News Classif
 Standalone scripts for data processing, analysis, and utility tasks. These can be run independently.
 
 ### `notebooks/`
-Jupyter notebooks for:
-- Exploratory Data Analysis (EDA)
-- Model experimentation
-- Visualization
-- Prototyping
+Jupyter notebooks and training scripts for:
+- **Model Training**: LSTM and CNN baseline models (`.ipynb` for Colab, `.py` as alternative)
+- **EDA Dashboard**: Interactive HTML dashboard for data exploration
+- **Documentation**: Setup guides and instructions
+
+**Note**: Both `.ipynb` (Jupyter/Colab) and `.py` (standalone script) versions are provided for flexibility.
 
 ### `models/`
 Saved model checkpoints, weights, and trained models.
 
 ### `reports/`
-Documentation, analysis reports, and project documentation.
+Documentation, analysis reports, and project documentation:
+- Analysis reports and summaries
+- EDA visualizations and figures
+- Data analysis metadata (JSON files)
+
+### `docs/`
+GitHub Pages documentation and static website:
+- EDA Dashboard HTML file
+- Setup instructions for GitHub Pages
+- Data files for dashboard visualization
 
 ## Best Practices
 

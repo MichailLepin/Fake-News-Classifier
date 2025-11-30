@@ -28,7 +28,8 @@ ENV/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
+# Allow .ipynb files (needed for Colab notebooks)
+# *.ipynb
 
 # IDE
 .vscode/
