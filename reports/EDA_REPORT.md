@@ -236,6 +236,13 @@ The interactive dashboard is available at `docs/index.html` (published on GitHub
    - Sufficient length for meaningful feature extraction
    - Better suited for transformer models (BERT, etc.)
 
+6. **Train/Test Split:**
+   - **No predefined split** - this is actually an advantage
+   - Allows for **custom stratified split** ensuring proper class balance
+   - Standard practice in ML: use `train_test_split` with stratification
+   - More flexible than fixed splits (can adjust ratios as needed)
+   - Prevents data leakage that might exist in predefined splits
+
 ### 8.2 Why LIAR Dataset is Not Suitable
 
 **LIAR dataset is NOT recommended for this business task** due to the following limitations:
@@ -268,6 +275,12 @@ The interactive dashboard is available at `docs/index.html` (published on GitHub
    - Designed for fact-checking political statements
    - Not designed for general news article classification
    - **Business Impact:** Model would not meet user expectations for classifying news articles
+
+6. **Predefined Splits Limitation:**
+   - While LIAR has predefined train/test/valid splits, this is not an advantage
+   - Fixed splits are less flexible than custom stratified splits
+   - Cannot adjust split ratios based on model needs
+   - ISOT's lack of predefined split allows for better control over data distribution
 
 #### Conclusion:
 While LIAR dataset is valuable for **political fact-checking research**, it is **not suitable** for the general-purpose fake news classification system described in the project requirements. The ISOT/Kaggle dataset aligns perfectly with the business objectives of classifying complete news articles across multiple domains.
