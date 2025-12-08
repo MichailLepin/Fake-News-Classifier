@@ -1,0 +1,20 @@
+{
+  "test_cases": [
+    {
+      "text": "Donald Trump just couldn t wish all Americans a Happy New Year and leave it at that.",
+      "label": "fake"
+    },
+    {
+      "text": "WASHINGTON (Reuters) - The head of a conservative Republican faction in the U.S. Congress called himself a fiscal conservative on Sunday.",
+      "label": "real"
+    },
+    {
+      "text": "Scientists discover that eating chocolate every day helps you lose weight without any diet changes.",
+      "label": "fake"
+    },
+    {
+      "text": "A comprehensive study published in the Journal of Clinical Psychology has found that regular exercise significantly improves mental health outcomes.",
+      "label": "real"
+    }
+  ]
+}

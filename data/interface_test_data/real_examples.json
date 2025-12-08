@@ -1,0 +1,49 @@
+{
+  "examples": [
+    {
+      "id": 1,
+      "title": "As U.S. budget fight looms, Republicans flip their fiscal script",
+      "text": "WASHINGTON (Reuters) - The head of a conservative Republican faction in the U.S. Congress, who voted this month for a huge expansion of the national debt to pay for tax cuts, called himself a fiscal conservative on Sunday and urged budget restraint in 2018. In keeping with a sharp pivot under way among Republicans, U.S. Representative Mark Meadows, speaking on CBS's Face the Nation, drew a hard line on federal spending, which lawmakers are bracing to do battle over in January.",
+      "label": "real",
+      "confidence": 0.94,
+      "subject": "politicsNews",
+      "date": "December 31, 2017"
+    },
+    {
+      "id": 2,
+      "title": "U.S. military to accept transgender recruits on Monday: Pentagon",
+      "text": "WASHINGTON (Reuters) - Transgender people will be allowed for the first time to enlist in the U.S. military starting on Monday as ordered by federal courts, the Pentagon said on Friday, after President Donald Trump's administration decided not to appeal rulings that blocked his transgender ban. Two federal appeals courts, one in Washington and one in Virginia, last week rejected the administration's request to put on hold orders by lower court judges requiring the military to begin accepting transgender recruits on Jan. 1.",
+      "label": "real",
+      "confidence": 0.91,
+      "subject": "politicsNews",
+      "date": "December 29, 2017"
+    },
+    {
+      "id": 3,
+      "title": "Senior U.S. Republican senator: 'Let Mr. Mueller do his job'",
+      "text": "WASHINGTON (Reuters) - The special counsel investigation of links between Russia and President Trump's 2016 election campaign should continue without interference in 2018, despite calls from some Trump administration allies and Republican lawmakers to shut it down, a prominent Republican senator said on Sunday. Lindsey Graham, who serves on the Senate armed forces and judiciary committees, said Department of Justice Special Counsel Robert Mueller needs to carry on with his Russia investigation without political interference.",
+      "label": "real",
+      "confidence": 0.93,
+      "subject": "politicsNews",
+      "date": "December 31, 2017"
+    },
+    {
+      "id": 4,
+      "title": "New Study Shows Benefits of Regular Exercise on Mental Health",
+      "text": "A comprehensive study published in the Journal of Clinical Psychology has found that regular exercise significantly improves mental health outcomes. The research, conducted over five years with over 10,000 participants, shows that individuals who engaged in at least 30 minutes of moderate exercise daily reported lower levels of anxiety and depression. The study was peer-reviewed and published in a reputable scientific journal.",
+      "label": "real",
+      "confidence": 0.89,
+      "subject": "Health",
+      "date": "January 20, 2024"
+    },
+    {
+      "id": 5,
+      "title": "Tech Companies Announce New Privacy Standards",
+      "text": "Major technology companies have jointly announced new privacy standards aimed at better protecting user data. The initiative, developed in collaboration with privacy advocates and regulators, includes enhanced encryption, clearer data usage policies, and improved user controls. The standards will be implemented gradually over the next 18 months.",
+      "label": "real",
+      "confidence": 0.92,
+      "subject": "Technology",
+      "date": "February 5, 2024"
+    }
+  ]
+}

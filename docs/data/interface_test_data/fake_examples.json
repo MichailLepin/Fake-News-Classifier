@@ -1,0 +1,49 @@
+{
+  "examples": [
+    {
+      "id": 1,
+      "title": "Donald Trump Sends Out Embarrassing New Year's Eve Message; This is Disturbing",
+      "text": "Donald Trump just couldn t wish all Americans a Happy New Year and leave it at that. Instead, he had to give a shout out to his enemies, haters and  the very dishonest fake news media.  The former reality show star had just one job to do and he couldn t do it. As our Country rapidly grows stronger and smarter, I want to wish all of my friends, supporters, enemies, haters, and even the very dishonest Fake News Media, a Happy and Healthy New Year,  President Angry Pants tweeted.",
+      "label": "fake",
+      "confidence": 0.92,
+      "subject": "News",
+      "date": "December 31, 2017"
+    },
+    {
+      "id": 2,
+      "title": "Drunk Bragging Trump Staffer Started Russian Collusion Investigation",
+      "text": "House Intelligence Committee Chairman Devin Nunes is going to have a bad day. He s been under the assumption, like many of us, that the Christopher Steele-dossier was what prompted the Russia investigation so he s been lashing out at the Department of Justice and the FBI in order to protect Trump. As it happens, the dossier is not what started the investigation, according to documents obtained by the New York Times.",
+      "label": "fake",
+      "confidence": 0.88,
+      "subject": "News",
+      "date": "December 31, 2017"
+    },
+    {
+      "id": 3,
+      "title": "Sheriff David Clarke Becomes An Internet Joke For Threatening To Poke People 'In The Eye'",
+      "text": "On Friday, it was revealed that former Milwaukee Sheriff David Clarke, who was being considered for Homeland Security Secretary in Donald Trump s administration, has an email scandal of his own. I am UNINTIMIDATED by lib media attempts to smear and discredit me with their FAKE NEWS reports designed to silence me,  the former sheriff tweeted.",
+      "label": "fake",
+      "confidence": 0.85,
+      "subject": "News",
+      "date": "December 30, 2017"
+    },
+    {
+      "id": 4,
+      "title": "Scientists Discover That Eating Chocolate Every Day Helps You Lose Weight",
+      "text": "A new study published in the Journal of Nutrition claims that eating chocolate every day can help you lose weight. Researchers found that participants who consumed dark chocolate daily lost an average of 10 pounds in just two weeks without changing their diet or exercise routine. The study was funded by a major chocolate manufacturer.",
+      "label": "fake",
+      "confidence": 0.9,
+      "subject": "Health",
+      "date": "January 15, 2024"
+    },
+    {
+      "id": 5,
+      "title": "Breaking: Major Tech Company Announces Free Internet for Everyone",
+      "text": "In an unprecedented move, a major tech company has announced plans to provide free high-speed internet to every household in the world. The CEO made the announcement during a surprise press conference, stating that the service will be completely free and funded by advertising revenue. No contracts or hidden fees required.",
+      "label": "fake",
+      "confidence": 0.87,
+      "subject": "Technology",
+      "date": "February 1, 2024"
+    }
+  ]
+}

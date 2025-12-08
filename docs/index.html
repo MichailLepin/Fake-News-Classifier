@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake News Classification - EDA Dashboard</title>
+    <title>Fake News Classification - Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -40,6 +40,48 @@
             color: #666;
             margin-bottom: 30px;
             font-size: 1.1em;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            padding: 15px 40px;
+            border: none;
+            background: transparent;
+            color: #666;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .tab-btn:hover {
+            color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .dataset-selector {
@@ -160,20 +202,315 @@
             border-radius: 8px;
             margin: 20px 0;
         }
+        
+        /* Model Demo Styles */
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .example-selector {
+            margin-bottom: 20px;
+        }
+        
+        .example-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .classify-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .classify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .classify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .prediction-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .prediction-label {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .prediction-label.fake {
+            color: #ff6b6b;
+        }
+        
+        .prediction-label.real {
+            color: #51cf66;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .confidence-fill.fake {
+            background: linear-gradient(90deg, #ff6b6b, #ff8787);
+        }
+        
+        .confidence-fill.real {
+            background: linear-gradient(90deg, #51cf66, #69db7c);
+        }
+        
+        .model-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .model-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .model-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .model-card .prediction {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .model-card .confidence {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .attention-highlight {
+            background: rgba(255, 255, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .model-stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .stats-table th,
+        .stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .stats-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .stats-table tr:hover {
+            background: #f8f9fa;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 EDA Dashboard</h1>
-        <p class="subtitle">Exploratory Data Analysis - Fake News Classification</p>
+        <h1>🔍 Fake News Classification</h1>
+        <p class="subtitle">Dashboard & Model Demo</p>
         
-        <div class="dataset-selector">
-            <button class="dataset-btn active" onclick="switchDataset('isot')">ISOT/Kaggle</button>
-            <button class="dataset-btn" onclick="switchDataset('liar')">LIAR</button>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('eda')">📊 EDA Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('demo')">🤖 Model Demo</button>
         </div>
         
-        <div id="content">
-            <div class="loading">Loading data...</div>
+        <!-- EDA Dashboard Tab -->
+        <div id="eda-tab" class="tab-content active">
+            <div class="dataset-selector">
+                <button class="dataset-btn active" onclick="switchDataset('isot')">ISOT/Kaggle</button>
+                <button class="dataset-btn" onclick="switchDataset('liar')">LIAR</button>
+            </div>
+            
+            <div id="content">
+                <div class="loading">Loading data...</div>
+            </div>
+        </div>
+        
+        <!-- Model Demo Tab -->
+        <div id="demo-tab" class="tab-content">
+            <div class="demo-container">
+                <div class="input-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">News Classification</h2>
+                    
+                    <div class="input-group">
+                        <label>Select an example or enter your own text:</label>
+                        <div class="example-selector" id="exampleSelector">
+                            <div style="margin-bottom: 10px;">
+                                <strong style="color: #ff6b6b;">Fake News Examples:</strong>
+                            </div>
+                            <button class="example-btn" onclick="loadExample('fake', 0)">Example 1: Trump</button>
+                            <button class="example-btn" onclick="loadExample('fake', 1)">Example 2: Investigation</button>
+                            <button class="example-btn" onclick="loadExample('fake', 2)">Example 3: Sheriff</button>
+                            <button class="example-btn" onclick="loadExample('fake', 3)">Example 4: Chocolate</button>
+                            <button class="example-btn" onclick="loadExample('fake', 4)">Example 5: Internet</button>
+                            <div style="margin: 15px 0 10px 0;">
+                                <strong style="color: #51cf66;">Real News Examples:</strong>
+                            </div>
+                            <button class="example-btn" onclick="loadExample('real', 0)">Example 1: Budget</button>
+                            <button class="example-btn" onclick="loadExample('real', 1)">Example 2: Military</button>
+                            <button class="example-btn" onclick="loadExample('real', 2)">Example 3: Senator</button>
+                            <button class="example-btn" onclick="loadExample('real', 3)">Example 4: Health</button>
+                            <button class="example-btn" onclick="loadExample('real', 4)">Example 5: Technology</button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="newsText">News Text:</label>
+                        <textarea id="newsText" placeholder="Enter news text for classification..."></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Select Model:</label>
+                        <select id="modelSelect" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="all">All Models (Comparison)</option>
+                            <option value="lstm">LSTM Baseline</option>
+                            <option value="cnn">CNN-Text Baseline</option>
+                            <option value="bert">BERT-base-uncased</option>
+                            <option value="distilbert">DistilBERT</option>
+                        </select>
+                    </div>
+                    
+                    <button class="classify-btn" onclick="classifyNews()">🔍 Classify</button>
+                </div>
+                
+                <div id="resultSection" class="result-section">
+                    <div id="predictionResult"></div>
+                    <div id="attentionVisualization"></div>
+                    <div id="modelComparison"></div>
+                    <div id="modelStats"></div>
+                    <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
+                        <strong>⚠️ Important Notice:</strong>
+                        <p style="margin-top: 10px; color: #666;">
+                            This is a demonstration version of the interface that simulates the work of machine learning models. 
+                            Actual predictions may differ. This tool is intended for demonstration purposes only 
+                            and should not be used as the sole source for verifying news authenticity.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -450,8 +787,379 @@
             });
         }
 
-        // Initialize
+        // Initialize EDA Dashboard
         loadData();
+        
+        // ============================================================================
+        // MODEL DEMO FUNCTIONALITY
+        // ============================================================================
+        
+        let testData = null;
+        let modelComparisonData = null;
+        
+        // Load test data
+        async function loadTestData() {
+            try {
+                // Try GitHub Pages path first
+                let response = await fetch('data/interface_test_data/test_examples.json');
+                if (!response.ok) {
+                    // Fallback to relative path
+                    response = await fetch('../data/interface_test_data/test_examples.json');
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to load test data');
+                }
+                testData = await response.json();
+                
+                let modelResponse = await fetch('data/interface_test_data/model_comparison.json');
+                if (!modelResponse.ok) {
+                    modelResponse = await fetch('../data/interface_test_data/model_comparison.json');
+                }
+                if (modelResponse.ok) {
+                    modelComparisonData = await modelResponse.json();
+                }
+            } catch (error) {
+                console.error('Error loading test data:', error);
+            }
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if (tabName === 'eda') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('eda-tab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('demo-tab').classList.add('active');
+                if (!testData) {
+                    loadTestData();
+                }
+            }
+        }
+        
+        // Load example text
+        function loadExample(type, index) {
+            if (!testData) {
+                alert('Loading data... Please wait.');
+                loadTestData().then(() => {
+                    setTimeout(() => loadExample(type, index), 500);
+                });
+                return;
+            }
+            
+            const examples = type === 'fake' ? testData.fake_news : testData.real_news;
+            if (examples && examples[index]) {
+                const example = examples[index];
+                const textToShow = example.text || (example.title ? example.title + '\n\n' + example.text : '');
+                document.getElementById('newsText').value = textToShow;
+                
+                // Clear previous results
+                document.getElementById('resultSection').classList.remove('show');
+            } else {
+                alert('Example not found. Please try another example.');
+            }
+        }
+        
+        // Get attention weights for words (simulated)
+        function getAttentionWeights(text) {
+            const words = text.split(/\s+/);
+            const textLower = text.toLowerCase();
+            const weights = {};
+            
+            // Fake indicators with high weight
+            const fakeIndicators = ['fake', 'conspiracy', 'breaking', 'shocking', 'secret', 'hidden', 
+                                   'miracle', 'guaranteed', 'free', 'click', 'act now', 'limited'];
+            // Real indicators with high weight
+            const realIndicators = ['reuters', 'according', 'study', 'published', 'research', 'scientists',
+                                   'journal', 'official', 'government', 'federal', 'analysis', 'report'];
+            
+            words.forEach((word, idx) => {
+                const wordLower = word.toLowerCase().replace(/[^\w]/g, '');
+                let weight = 0.3; // Base weight
+                
+                fakeIndicators.forEach(ind => {
+                    if (wordLower.includes(ind)) weight += 0.4;
+                });
+                
+                realIndicators.forEach(ind => {
+                    if (wordLower.includes(ind)) weight += 0.4;
+                });
+                
+                // Capitalized words might be important
+                if (word[0] === word[0].toUpperCase() && word.length > 3) {
+                    weight += 0.1;
+                }
+                
+                weights[idx] = Math.min(1, weight);
+            });
+            
+            return weights;
+        }
+        
+        // Visualize attention in text
+        function visualizeAttention(text, label) {
+            const words = text.split(/(\s+)/);
+            const weights = getAttentionWeights(text);
+            let wordIndex = 0;
+            
+            return words.map((word, idx) => {
+                if (/\s+/.test(word)) {
+                    return word;
+                }
+                const weight = weights[wordIndex] || 0.3;
+                wordIndex++;
+                
+                // Color based on label and weight
+                const opacity = Math.max(0.3, weight);
+                const backgroundColor = label === 'fake' 
+                    ? `rgba(255, 107, 107, ${opacity})`
+                    : `rgba(81, 207, 102, ${opacity})`;
+                
+                return `<span style="background-color: ${backgroundColor}; padding: 2px 4px; border-radius: 3px; transition: all 0.3s;" 
+                             title="Importance: ${(weight * 100).toFixed(0)}%">${word}</span>`;
+            }).join('');
+        }
+        
+        // Simulate model prediction
+        function simulatePrediction(text, modelName) {
+            // Simple heuristic-based simulation
+            const textLower = text.toLowerCase();
+            let fakeScore = 0;
+            
+            // Fake indicators
+            const fakeIndicators = ['fake news', 'conspiracy', 'breaking', 'shocking', 'secret', 'hidden', 
+                                   'they don\'t want you to know', 'doctors hate', 'miracle', 'guaranteed',
+                                   'free', 'click here', 'act now', 'limited time'];
+            fakeIndicators.forEach(indicator => {
+                if (textLower.includes(indicator)) fakeScore += 0.1;
+            });
+            
+            // Real indicators
+            const realIndicators = ['reuters', 'according to', 'study published', 'research', 'scientists',
+                                   'journal', 'official', 'government', 'federal', 'analysis'];
+            realIndicators.forEach(indicator => {
+                if (textLower.includes(indicator)) fakeScore -= 0.1;
+            });
+            
+            // Length factor
+            if (text.length < 100) fakeScore += 0.15;
+            if (text.length > 500) fakeScore -= 0.1;
+            
+            // Normalize
+            fakeScore = Math.max(0, Math.min(1, 0.5 + fakeScore));
+            
+            // Model-specific adjustments
+            let confidence = fakeScore;
+            switch(modelName) {
+                case 'lstm':
+                    confidence = fakeScore + (Math.random() - 0.5) * 0.1;
+                    break;
+                case 'cnn':
+                    confidence = fakeScore + (Math.random() - 0.5) * 0.08;
+                    break;
+                case 'bert':
+                    confidence = fakeScore + (Math.random() - 0.5) * 0.05;
+                    break;
+                case 'distilbert':
+                    confidence = fakeScore + (Math.random() - 0.5) * 0.06;
+                    break;
+            }
+            
+            confidence = Math.max(0.1, Math.min(0.99, confidence));
+            
+            return {
+                label: confidence > 0.5 ? 'fake' : 'real',
+                confidence: Math.max(confidence, 1 - confidence),
+                fakeScore: confidence,
+                realScore: 1 - confidence
+            };
+        }
+        
+        // Classify news
+        async function classifyNews() {
+            const text = document.getElementById('newsText').value.trim();
+            if (!text) {
+                alert('Please enter news text or select an example.');
+                return;
+            }
+            
+            const selectedModel = document.getElementById('modelSelect').value;
+            const resultSection = document.getElementById('resultSection');
+            const predictionResult = document.getElementById('predictionResult');
+            const attentionVisualization = document.getElementById('attentionVisualization');
+            const modelComparison = document.getElementById('modelComparison');
+            const modelStats = document.getElementById('modelStats');
+            
+            // Show loading
+            predictionResult.innerHTML = '<div class="loading">Analyzing text...</div>';
+            attentionVisualization.innerHTML = '';
+            resultSection.classList.add('show');
+            
+            // Simulate processing delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            if (selectedModel === 'all') {
+                // Compare all models
+                const models = ['lstm', 'cnn', 'bert', 'distilbert'];
+                const modelNames = {
+                    'lstm': 'LSTM Baseline',
+                    'cnn': 'CNN-Text Baseline',
+                    'bert': 'BERT-base-uncased',
+                    'distilbert': 'DistilBERT'
+                };
+                
+                const predictions = models.map(model => ({
+                    name: modelNames[model],
+                    id: model,
+                    ...simulatePrediction(text, model)
+                }));
+                
+                // Find best prediction
+                const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
+                const avgFakeScore = predictions.reduce((sum, p) => sum + p.fakeScore, 0) / predictions.length;
+                const finalLabel = avgFakeScore > 0.5 ? 'fake' : 'real';
+                
+                // Display main prediction
+                predictionResult.innerHTML = `
+                    <div class="prediction-card">
+                        <div class="prediction-label ${finalLabel}">
+                            ${finalLabel === 'fake' ? '❌' : '✅'} 
+                            ${finalLabel === 'fake' ? 'Fake News' : 'Real News'}
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill ${finalLabel}" style="width: ${avgConfidence * 100}%">
+                                ${(avgConfidence * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <p style="color: #666; margin-top: 10px;">
+                            Average confidence across all models: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>
+                        </p>
+                    </div>
+                `;
+                
+                // Display attention visualization
+                attentionVisualization.innerHTML = `
+                    <div class="prediction-card">
+                        <h3 style="margin-bottom: 15px; color: #333;">Model Attention Visualization</h3>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                            Color highlighting shows word importance for prediction. 
+                            Brighter colors = more important words.
+                        </p>
+                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
+                            ${visualizeAttention(text, finalLabel)}
+                        </div>
+                    </div>
+                `;
+                
+                // Display model comparison
+                modelComparison.innerHTML = `
+                    <div class="prediction-card">
+                        <h3 style="margin-bottom: 15px; color: #333;">Model Comparison</h3>
+                        <div class="model-comparison">
+                            ${predictions.map(p => `
+                                <div class="model-card">
+                                    <h4>${p.name}</h4>
+                                    <div class="prediction ${p.label}" style="color: ${p.label === 'fake' ? '#ff6b6b' : '#51cf66'}">
+                                        ${p.label === 'fake' ? '❌ Fake' : '✅ Real'}
+                                    </div>
+                                    <div class="confidence">Confidence: ${(p.confidence * 100).toFixed(1)}%</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // Display model stats if available
+                if (modelComparisonData) {
+                    modelStats.innerHTML = `
+                        <div class="model-stats">
+                            <h3 style="margin-bottom: 15px; color: #333;">Model Metrics</h3>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Model</th>
+                                        <th>Accuracy</th>
+                                        <th>F1-Score</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>Time (ms)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${modelComparisonData.models.map(m => `
+                                        <tr>
+                                            <td><strong>${m.name}</strong></td>
+                                            <td>${(m.accuracy * 100).toFixed(1)}%</td>
+                                            <td>${(m.f1_score * 100).toFixed(1)}%</td>
+                                            <td>${(m.precision * 100).toFixed(1)}%</td>
+                                            <td>${(m.recall * 100).toFixed(1)}%</td>
+                                            <td>${m.inference_time_ms}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+            } else {
+                // Single model prediction
+                const prediction = simulatePrediction(text, selectedModel);
+                const modelNames = {
+                    'lstm': 'LSTM Baseline',
+                    'cnn': 'CNN-Text Baseline',
+                    'bert': 'BERT-base-uncased',
+                    'distilbert': 'DistilBERT'
+                };
+                
+                predictionResult.innerHTML = `
+                    <div class="prediction-card">
+                        <h3 style="margin-bottom: 15px; color: #333;">Model: ${modelNames[selectedModel]}</h3>
+                        <div class="prediction-label ${prediction.label}">
+                            ${prediction.label === 'fake' ? '❌' : '✅'} 
+                            ${prediction.label === 'fake' ? 'Fake News' : 'Real News'}
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill ${prediction.label}" style="width: ${prediction.confidence * 100}%">
+                                ${(prediction.confidence * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="padding: 15px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #ff6b6b;">
+                                <strong style="color: #ff6b6b;">Fake Probability:</strong>
+                                <div style="font-size: 1.5em; margin-top: 5px;">${(prediction.fakeScore * 100).toFixed(1)}%</div>
+                            </div>
+                            <div style="padding: 15px; background: #f0fff4; border-radius: 8px; border-left: 4px solid #51cf66;">
+                                <strong style="color: #51cf66;">Real Probability:</strong>
+                                <div style="font-size: 1.5em; margin-top: 5px;">${(prediction.realScore * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Display attention visualization
+                attentionVisualization.innerHTML = `
+                    <div class="prediction-card">
+                        <h3 style="margin-bottom: 15px; color: #333;">Model Attention Visualization</h3>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                            Color highlighting shows word importance for prediction. 
+                            Brighter colors = more important words.
+                        </p>
+                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
+                            ${visualizeAttention(text, prediction.label)}
+                        </div>
+                    </div>
+                `;
+                
+                modelComparison.innerHTML = '';
+                modelStats.innerHTML = '';
+            }
+        }
+        
+        // Load test data on page load
+        loadTestData();
     </script>
 </body>
 </html>

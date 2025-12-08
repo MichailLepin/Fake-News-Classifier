@@ -1,0 +1,34 @@
+{
+  "examples": [
+    {
+      "id": 1,
+      "text": "Scientists have discovered a new planet that could potentially support life. The planet, located 120 light-years away, has conditions similar to Earth and contains water in its atmosphere.",
+      "expected_label": "real",
+      "category": "science"
+    },
+    {
+      "id": 2,
+      "text": "BREAKING: The government has secretly been hiding evidence of alien contact for decades. Documents leaked by an anonymous source reveal that multiple UFO sightings were covered up.",
+      "expected_label": "fake",
+      "category": "conspiracy"
+    },
+    {
+      "id": 3,
+      "text": "The Federal Reserve announced today that it will maintain current interest rates, citing stable economic indicators. This decision comes after months of speculation about potential rate changes.",
+      "expected_label": "real",
+      "category": "economics"
+    },
+    {
+      "id": 4,
+      "text": "A viral video shows a politician accepting bribes in exchange for votes. The footage, which has been viewed millions of times, allegedly shows clear evidence of corruption.",
+      "expected_label": "fake",
+      "category": "politics"
+    },
+    {
+      "id": 5,
+      "text": "Medical researchers have made significant progress in developing a new treatment for Alzheimer's disease. Clinical trials show promising results, with patients showing improved cognitive function.",
+      "expected_label": "real",
+      "category": "health"
+    }
+  ]
+}
