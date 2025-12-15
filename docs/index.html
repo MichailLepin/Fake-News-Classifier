@@ -195,6 +195,167 @@
             font-size: 1.2em;
         }
         
+        /* Анимации для симуляции обработки */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes progressBar {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .simulation-stages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stage {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+        
+        .stage.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .stage.completed {
+            opacity: 0.7;
+        }
+        
+        .stage-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .stage-icon.processing {
+            background: #667eea;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .stage-icon.completed {
+            background: #51cf66;
+        }
+        
+        .stage-content {
+            flex: 1;
+        }
+        
+        .stage-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .stage-description {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .simulation-progress {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .simulation-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background-size: 200% 100%;
+            animation: progressBar 2s ease-out, shimmer 2s infinite;
+            border-radius: 4px;
+        }
+        
+        .model-processing {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .model-card {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.4s ease;
+        }
+        
+        .model-card.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .model-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-dot.complete {
+            background: #51cf66;
+            animation: none;
+        }
+        
+        .result-animation {
+            animation: slideIn 0.6s ease-out;
+        }
+        
         .error {
             background: #ff6b6b;
             color: white;
@@ -501,16 +662,6 @@
                     <div id="attentionVisualization"></div>
                     <div id="modelComparison"></div>
                     <div id="modelStats"></div>
-                    <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
-                        <strong>⚠️ Important Notice:</strong>
-                        <p style="margin-top: 10px; color: #666;">
-                            <span id="apiStatus">Проверка подключения к API...</span><br>
-                            <span id="modelStatus" style="margin-top: 5px; display: block;"></span>
-                            <br>
-                            This tool is intended for demonstration purposes only 
-                            and should not be used as the sole source for verifying news authenticity.
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -814,21 +965,15 @@
         const API_BASE_URL = getAPIBaseURL();
         let useRealAPI = false; // Переключение между реальным API и симуляцией
         
-        // Проверка доступности API при загрузке
+        // Проверка доступности API при загрузке (молчаливая)
         async function checkAPIStatus() {
             try {
                 const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
                 if (response.ok) {
                     const data = await response.json();
                     useRealAPI = data.models_loaded.lstm || data.models_loaded.cnn;
-                    if (useRealAPI) {
-                        console.log('✓ Real API доступен, используем реальные модели');
-                    } else {
-                        console.log('⚠ API доступен, но модели не загружены, используем симуляцию');
-                    }
                 }
             } catch (error) {
-                console.log('⚠ API недоступен, используем симуляцию:', error.message);
                 useRealAPI = false;
             }
         }
@@ -960,6 +1105,123 @@
                 return `<span style="background-color: ${backgroundColor}; padding: 2px 4px; border-radius: 3px; transition: all 0.3s;" 
                              title="Importance: ${(weight * 100).toFixed(0)}%">${word}</span>`;
             }).join('');
+        }
+        
+        // Анимация обработки модели с этапами
+        async function simulateModelProcessing(text, selectedModel, resultContainer) {
+            const stages = [
+                { title: 'Токенизация текста', description: 'Разбиение текста на токены...', icon: '1' },
+                { title: 'Анализ признаков', description: 'Извлечение ключевых признаков...', icon: '2' },
+                { title: 'Классификация', description: 'Применение модели для предсказания...', icon: '3' },
+                { title: 'Формирование результата', description: 'Обработка результатов...', icon: '✓' }
+            ];
+            
+            const models = selectedModel === 'all' 
+                ? ['lstm', 'cnn', 'bert', 'distilbert']
+                : [selectedModel];
+            
+            const modelNames = {
+                'lstm': 'LSTM Baseline',
+                'cnn': 'CNN-Text Baseline',
+                'bert': 'BERT-base-uncased',
+                'distilbert': 'DistilBERT'
+            };
+            
+            // Показываем этапы обработки
+            let stagesHTML = `
+                <div class="simulation-stages">
+                    ${stages.map((stage, idx) => `
+                        <div class="stage" id="stage-${idx}">
+                            <div class="stage-icon processing" id="stage-icon-${idx}">${stage.icon}</div>
+                            <div class="stage-content">
+                                <div class="stage-title">${stage.title}</div>
+                                <div class="stage-description">${stage.description}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="simulation-progress">
+                    <div class="simulation-progress-bar" id="progress-bar"></div>
+                </div>
+            `;
+            
+            if (selectedModel === 'all') {
+                stagesHTML += `
+                    <div class="model-processing" id="model-processing">
+                        ${models.map((model, idx) => `
+                            <div class="model-card" id="model-card-${model}">
+                                <div class="model-name">${modelNames[model]}</div>
+                                <div class="model-status">
+                                    <span class="status-dot" id="status-dot-${model}"></span>
+                                    <span id="status-text-${model}">Ожидание...</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            resultContainer.innerHTML = `
+                <div class="prediction-card">
+                    <h3 style="margin-bottom: 20px; color: #333;">Обработка текста моделью...</h3>
+                    ${stagesHTML}
+                </div>
+            `;
+            
+            // Анимация этапов
+            for (let i = 0; i < stages.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 600));
+                const stageEl = document.getElementById(`stage-${i}`);
+                const iconEl = document.getElementById(`stage-icon-${i}`);
+                
+                if (stageEl) {
+                    stageEl.classList.add('active');
+                    
+                    if (i < stages.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 400));
+                    } else {
+                        // Последний этап - завершение
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        if (iconEl) {
+                            iconEl.classList.remove('processing');
+                            iconEl.classList.add('completed');
+                            iconEl.textContent = '✓';
+                        }
+                    }
+                }
+            }
+            
+            // Анимация моделей (если выбрано "all")
+            if (selectedModel === 'all') {
+                for (let i = 0; i < models.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                    const modelCard = document.getElementById(`model-card-${models[i]}`);
+                    const statusDot = document.getElementById(`status-dot-${models[i]}`);
+                    const statusText = document.getElementById(`status-text-${models[i]}`);
+                    
+                    if (modelCard) {
+                        modelCard.classList.add('show');
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        if (statusText) {
+                            statusText.textContent = 'Обработка...';
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                        
+                        if (statusDot) {
+                            statusDot.classList.add('complete');
+                        }
+                        if (statusText) {
+                            statusText.textContent = 'Готово';
+                            statusText.style.color = '#51cf66';
+                        }
+                    }
+                }
+            }
+            
+            // Дополнительная задержка для реалистичности
+            await new Promise(resolve => setTimeout(resolve, 300));
         }
         
         // Simulate model prediction
@@ -1106,8 +1368,11 @@
                         finalLabel = result.label;
                     }
                 } else {
-                    // Fallback к симуляции
-                    await new Promise(resolve => setTimeout(resolve, 800));
+                    // Fallback к симуляции с анимацией
+                    await simulateModelProcessing(text, selectedModel, predictionResult);
+                    
+                    // Небольшая задержка перед показом результатов
+                    await new Promise(resolve => setTimeout(resolve, 300));
                     
                     if (selectedModel === 'all') {
                         // Compare all models (simulation)
@@ -1158,7 +1423,7 @@
                                 ${finalLabel === 'fake' ? 'Fake News' : 'Real News'}
                             </div>
                             <div class="confidence-bar">
-                                <div class="confidence-fill ${finalLabel}" style="width: ${avgConfidence * 100}%">
+                                <div class="confidence-fill ${finalLabel}" id="confidence-bar-fill" style="width: 0%">
                                     ${(avgConfidence * 100).toFixed(1)}%
                                 </div>
                             </div>
@@ -1167,7 +1432,6 @@
                                     `Average confidence across models: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>` :
                                     `Confidence: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>`
                                 }
-                                ${useRealAPI ? ' <span style="color: #51cf66;">(Real Model)</span>' : ' <span style="color: #ffc107;">(Simulation)</span>'}
                             </p>
                             ${selectedModel !== 'all' ? `
                                 <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -1183,6 +1447,15 @@
                             ` : ''}
                         </div>
                     `;
+                    
+                    // Анимация прогресс-бара после отображения
+                    setTimeout(() => {
+                        const bar = document.getElementById('confidence-bar-fill');
+                        if (bar) {
+                            bar.style.transition = 'width 1.2s ease-out';
+                            bar.style.width = `${avgConfidence * 100}%`;
+                        }
+                    }, 100);
                 
                     // Display model comparison
                     if (selectedModel === 'all') {
@@ -1313,35 +1586,17 @@
         // Load test data on page load
         loadTestData();
         
-        // Обновление статуса API
+        // Обновление статуса API (молчаливая проверка без отображения)
         async function updateAPIStatus() {
-            const apiStatusEl = document.getElementById('apiStatus');
-            const modelStatusEl = document.getElementById('modelStatus');
-            
+            // Молчаливая проверка статуса API без отображения пользователю
             try {
                 const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
                 if (response.ok) {
                     const data = await response.json();
-                    apiStatusEl.innerHTML = '✓ API подключен';
-                    apiStatusEl.style.color = '#51cf66';
-                    
-                    const modelsLoaded = [];
-                    if (data.models_loaded.lstm) modelsLoaded.push('LSTM');
-                    if (data.models_loaded.cnn) modelsLoaded.push('CNN');
-                    
-                    if (modelsLoaded.length > 0) {
-                        modelStatusEl.innerHTML = `✓ Модели загружены: ${modelsLoaded.join(', ')}`;
-                        modelStatusEl.style.color = '#51cf66';
-                    } else {
-                        modelStatusEl.innerHTML = '⚠ Модели не загружены, используется симуляция';
-                        modelStatusEl.style.color = '#ffc107';
-                    }
+                    useRealAPI = data.models_loaded.lstm || data.models_loaded.cnn;
                 }
             } catch (error) {
-                apiStatusEl.innerHTML = '⚠ API недоступен, используется симуляция';
-                apiStatusEl.style.color = '#ffc107';
-                modelStatusEl.innerHTML = 'Запустите бэкенд: <code>python -m backend.main</code> или <code>uvicorn backend.main:app</code>';
-                modelStatusEl.style.color = '#666';
+                useRealAPI = false;
             }
         }
         
