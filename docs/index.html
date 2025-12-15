@@ -310,7 +310,7 @@
             margin: 20px 0;
         }
         
-        .model-card {
+        .model-processing .model-card {
             padding: 15px;
             background: white;
             border-radius: 8px;
@@ -320,7 +320,7 @@
             transition: all 0.4s ease;
         }
         
-        .model-card.show {
+        .model-processing .model-card.show {
             opacity: 1;
             transform: scale(1);
         }
@@ -1331,6 +1331,8 @@
             // Show loading
             predictionResult.innerHTML = '<div class="loading">Analyzing text...</div>';
             attentionVisualization.innerHTML = '';
+            modelComparison.innerHTML = '';
+            modelStats.innerHTML = '';
             resultSection.classList.add('show');
             
             try {

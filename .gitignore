@@ -46,16 +46,16 @@ data/raw/**/*.tsv
 *.csv
 *.tsv
 
-# Models (large files) - исключены из git, но нужны для Railway
-models/*.pth
-models/*.pt
+# Models - allow specific model files for deployment
+# Large model files that should NOT be in git (use Git LFS for these)
 models/*.h5
 models/*.ckpt
-*.pth
-*.pt
 *.h5
 *.ckpt
 !models/.gitkeep
+# Allow .pth model files for deployment
+!models/best_cnn_model.pth
+!models/best_lstm_model.pth
 
 # Vocab files
 # vocab.json is needed for deployment - do not ignore
