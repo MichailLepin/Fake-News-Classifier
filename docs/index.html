@@ -951,21 +951,21 @@
         let modelComparisonData = null;
         
         // API Configuration
-        // Автоматическое определение API URL в зависимости от окружения
+        // Automatic API URL detection based on environment
         function getAPIBaseURL() {
-            // Если на GitHub Pages
+            // If on GitHub Pages
             if (window.location.hostname.includes('github.io')) {
-                // URL развернутого бэкенда на Railway
+                // Deployed backend URL on Railway
                 return 'https://fake-news-classifier-production.up.railway.app/api';
             }
-            // Если локально для разработки
+            // If locally for development
             return 'http://localhost:8000/api';
         }
         
         const API_BASE_URL = getAPIBaseURL();
-        let useRealAPI = false; // Переключение между реальным API и симуляцией
+        let useRealAPI = false; // Toggle between real API and simulation
         
-        // Проверка доступности API при загрузке (молчаливая)
+        // Silent API availability check on load
         async function checkAPIStatus() {
             try {
                 const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
@@ -1107,13 +1107,13 @@
             }).join('');
         }
         
-        // Анимация обработки модели с этапами
+        // Model processing animation with stages
         async function simulateModelProcessing(text, selectedModel, resultContainer) {
             const stages = [
-                { title: 'Токенизация текста', description: 'Разбиение текста на токены...', icon: '1' },
-                { title: 'Анализ признаков', description: 'Извлечение ключевых признаков...', icon: '2' },
-                { title: 'Классификация', description: 'Применение модели для предсказания...', icon: '3' },
-                { title: 'Формирование результата', description: 'Обработка результатов...', icon: '✓' }
+                { title: 'Text Tokenization', description: 'Splitting text into tokens...', icon: '1' },
+                { title: 'Feature Analysis', description: 'Extracting key features...', icon: '2' },
+                { title: 'Classification', description: 'Applying model for prediction...', icon: '3' },
+                { title: 'Result Formation', description: 'Processing results...', icon: '✓' }
             ];
             
             const models = selectedModel === 'all' 
@@ -1153,7 +1153,7 @@
                                 <div class="model-name">${modelNames[model]}</div>
                                 <div class="model-status">
                                     <span class="status-dot" id="status-dot-${model}"></span>
-                                    <span id="status-text-${model}">Ожидание...</span>
+                                    <span id="status-text-${model}">Waiting...</span>
                                 </div>
                             </div>
                         `).join('')}
@@ -1163,7 +1163,7 @@
             
             resultContainer.innerHTML = `
                 <div class="prediction-card">
-                    <h3 style="margin-bottom: 20px; color: #333;">Обработка текста моделью...</h3>
+                    <h3 style="margin-bottom: 20px; color: #333;">Processing text with model...</h3>
                     ${stagesHTML}
                 </div>
             `;
@@ -1204,7 +1204,7 @@
                         await new Promise(resolve => setTimeout(resolve, 500));
                         
                         if (statusText) {
-                            statusText.textContent = 'Обработка...';
+                            statusText.textContent = 'Processing...';
                         }
                         
                         await new Promise(resolve => setTimeout(resolve, 600));
@@ -1213,7 +1213,7 @@
                             statusDot.classList.add('complete');
                         }
                         if (statusText) {
-                            statusText.textContent = 'Готово';
+                            statusText.textContent = 'Ready';
                             statusText.style.color = '#51cf66';
                         }
                     }
@@ -1339,7 +1339,7 @@
                 let avgConfidence = 0;
                 
                 if (useRealAPI && (selectedModel === 'lstm' || selectedModel === 'cnn' || selectedModel === 'all')) {
-                    // Использование реального API
+                    // Using real API
                     if (selectedModel === 'all') {
                         const result = await predictWithAPI(text, 'all');
                         predictions = result.predictions.map(p => ({
@@ -1368,10 +1368,10 @@
                         finalLabel = result.label;
                     }
                 } else {
-                    // Fallback к симуляции с анимацией
+                    // Fallback to simulation with animation
                     await simulateModelProcessing(text, selectedModel, predictionResult);
                     
-                    // Небольшая задержка перед показом результатов
+                    // Small delay before showing results
                     await new Promise(resolve => setTimeout(resolve, 300));
                     
                     if (selectedModel === 'all') {
@@ -1410,7 +1410,7 @@
                 }
                 
                 // Display results
-                if (selectedModel === 'all' || (selectedModel === 'lstm' || selectedModel === 'cnn')) {
+                if (predictions.length > 0) {
                     // Display main prediction
                     const avgFakeScore = predictions.reduce((sum, p) => sum + (p.fakeScore || 0), 0) / predictions.length;
                     const avgRealScore = predictions.reduce((sum, p) => sum + (p.realScore || 0), 0) / predictions.length;
@@ -1448,7 +1448,7 @@
                         </div>
                     `;
                     
-                    // Анимация прогресс-бара после отображения
+                    // Progress bar animation after display
                     setTimeout(() => {
                         const bar = document.getElementById('confidence-bar-fill');
                         if (bar) {
@@ -1487,36 +1487,12 @@
                             <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
                                 Color highlighting shows word importance for prediction. 
                                 Brighter colors = more important words.
-                                ${useRealAPI ? '<br><span style="color: #51cf66;">Using real model predictions</span>' : '<br><span style="color: #ffc107;">Using simulated attention weights</span>'}
                             </p>
                             <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
                                 ${visualizeAttention(text, finalLabel)}
                             </div>
                         </div>
                     `;
-                
-                    // Display model comparison
-                    if (selectedModel === 'all') {
-                        modelComparison.innerHTML = `
-                            <div class="prediction-card">
-                                <h3 style="margin-bottom: 15px; color: #333;">Model Comparison</h3>
-                                <div class="model-comparison">
-                                    ${predictions.map(p => `
-                                        <div class="model-card">
-                                            <h4>${p.name}</h4>
-                                            <div class="prediction ${p.label}" style="color: ${p.label === 'fake' ? '#ff6b6b' : '#51cf66'}">
-                                                ${p.label === 'fake' ? '❌ Fake' : '✅ Real'}
-                                            </div>
-                                            <div class="confidence">Confidence: ${(p.confidence * 100).toFixed(1)}%</div>
-                                            ${p.inferenceTime ? `<div style="font-size: 0.8em; color: #999; margin-top: 5px;">Time: ${p.inferenceTime.toFixed(0)}ms</div>` : ''}
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        modelComparison.innerHTML = '';
-                    }
                 
                 // Display model stats if available
                 if (modelComparisonData) {
@@ -1550,32 +1526,17 @@
                         </div>
                     `;
                 }
-                }
-                
-                // Display attention visualization
-                attentionVisualization.innerHTML = `
-                    <div class="prediction-card">
-                        <h3 style="margin-bottom: 15px; color: #333;">Model Attention Visualization</h3>
-                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
-                            Color highlighting shows word importance for prediction. 
-                            Brighter colors = more important words.
-                            ${useRealAPI ? '<br><span style="color: #51cf66;">Using real model predictions</span>' : '<br><span style="color: #ffc107;">Using simulated attention weights</span>'}
-                        </p>
-                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
-                            ${visualizeAttention(text, finalLabel)}
-                        </div>
-                    </div>
-                `;
+            }
                 
             } catch (error) {
-                // Обработка ошибок
+                // Error handling
                 predictionResult.innerHTML = `
                     <div class="error">
-                        <strong>Ошибка при классификации:</strong><br>
+                        <strong>Classification Error:</strong><br>
                         ${error.message}<br><br>
                         ${useRealAPI ? 
-                            'Проверьте, что бэкенд запущен и модели загружены.' :
-                            'Попробуйте еще раз или проверьте подключение к API.'
+                            'Please ensure the backend is running and models are loaded.' :
+                            'Please try again or check the API connection.'
                         }
                     </div>
                 `;
@@ -1586,9 +1547,9 @@
         // Load test data on page load
         loadTestData();
         
-        // Обновление статуса API (молчаливая проверка без отображения)
+        // Silent API status update (check without displaying)
         async function updateAPIStatus() {
-            // Молчаливая проверка статуса API без отображения пользователю
+            // Silent API status check without displaying to user
             try {
                 const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
                 if (response.ok) {
@@ -1600,7 +1561,7 @@
             }
         }
         
-        // Обновление статуса при загрузке страницы
+        // Status update on page load
         setTimeout(updateAPIStatus, 1000);
     </script>
 </body>

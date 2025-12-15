@@ -57,10 +57,11 @@ models/*.ckpt
 *.ckpt
 !models/.gitkeep
 
-# Vocab files (нужны для Railway, но могут быть большими)
-vocab/*.json
+# Vocab files
+# vocab.json is needed for deployment - do not ignore
 vocab/*.txt
 !vocab/.gitkeep
+!vocab/vocab.json
 
 # Logs
 logs/
