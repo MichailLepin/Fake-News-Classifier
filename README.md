@@ -175,9 +175,18 @@ Online misinformation spreads rapidly, influencing public perception in politics
 ### Backend Deployment (Railway.app)
 
 1. **Prepare models and vocab:**
+
+   **Вариант A: Автоматическая загрузка из GitHub (если модели уже в репозитории)**
+   ```bash
+   python scripts/download_models.py
+   ```
+   Скрипт автоматически загрузит модели из GitHub Releases или репозитория.
+
+   **Вариант B: Обучение в Google Colab (если модели еще не обучены)**
    - Train models in `notebooks/lstm_training.ipynb` and `notebooks/cnn_training.ipynb`
    - Save vocab using Cell 10-11 in notebooks
    - Download `best_lstm_model.pth`, `best_cnn_model.pth`, and `vocab.json`
+   - См. подробные инструкции в `GET_MODELS_GUIDE.md`
 
 2. **Deploy to Railway:**
    - Sign up at https://railway.app
