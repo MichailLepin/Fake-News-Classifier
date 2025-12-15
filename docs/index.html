@@ -504,8 +504,10 @@
                     <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
                         <strong>⚠️ Important Notice:</strong>
                         <p style="margin-top: 10px; color: #666;">
-                            This is a demonstration version of the interface that simulates the work of machine learning models. 
-                            Actual predictions may differ. This tool is intended for demonstration purposes only 
+                            <span id="apiStatus">Проверка подключения к API...</span><br>
+                            <span id="modelStatus" style="margin-top: 5px; display: block;"></span>
+                            <br>
+                            This tool is intended for demonstration purposes only 
                             and should not be used as the sole source for verifying news authenticity.
                         </p>
                     </div>
@@ -797,6 +799,32 @@
         let testData = null;
         let modelComparisonData = null;
         
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:8000/api';
+        let useRealAPI = false; // Переключение между реальным API и симуляцией
+        
+        // Проверка доступности API при загрузке
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    useRealAPI = data.models_loaded.lstm || data.models_loaded.cnn;
+                    if (useRealAPI) {
+                        console.log('✓ Real API доступен, используем реальные модели');
+                    } else {
+                        console.log('⚠ API доступен, но модели не загружены, используем симуляцию');
+                    }
+                }
+            } catch (error) {
+                console.log('⚠ API недоступен, используем симуляцию:', error.message);
+                useRealAPI = false;
+            }
+        }
+        
+        // Вызов проверки при загрузке
+        checkAPIStatus();
+        
         // Load test data
         async function loadTestData() {
             try {
@@ -978,6 +1006,40 @@
             };
         }
         
+        // Real API prediction
+        async function predictWithAPI(text, modelId) {
+            try {
+                let endpoint = '';
+                if (modelId === 'lstm') {
+                    endpoint = '/predict/lstm';
+                } else if (modelId === 'cnn') {
+                    endpoint = '/predict/cnn';
+                } else if (modelId === 'all') {
+                    endpoint = '/predict/all';
+                } else {
+                    throw new Error(`Unknown model: ${modelId}`);
+                }
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+                    throw new Error(errorData.detail || `HTTP ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
         // Classify news
         async function classifyNews() {
             const text = document.getElementById('newsText').value.trim();
@@ -998,79 +1060,179 @@
             attentionVisualization.innerHTML = '';
             resultSection.classList.add('show');
             
-            // Simulate processing delay
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            if (selectedModel === 'all') {
-                // Compare all models
-                const models = ['lstm', 'cnn', 'bert', 'distilbert'];
-                const modelNames = {
-                    'lstm': 'LSTM Baseline',
-                    'cnn': 'CNN-Text Baseline',
-                    'bert': 'BERT-base-uncased',
-                    'distilbert': 'DistilBERT'
-                };
+            try {
+                let predictions = [];
+                let finalLabel = 'real';
+                let avgConfidence = 0;
                 
-                const predictions = models.map(model => ({
-                    name: modelNames[model],
-                    id: model,
-                    ...simulatePrediction(text, model)
-                }));
+                if (useRealAPI && (selectedModel === 'lstm' || selectedModel === 'cnn' || selectedModel === 'all')) {
+                    // Использование реального API
+                    if (selectedModel === 'all') {
+                        const result = await predictWithAPI(text, 'all');
+                        predictions = result.predictions.map(p => ({
+                            name: p.model,
+                            id: p.model_id,
+                            label: p.label,
+                            confidence: p.confidence,
+                            fakeScore: p.fake_score,
+                            realScore: p.real_score,
+                            inferenceTime: p.inference_time_ms
+                        }));
+                        avgConfidence = result.average_confidence;
+                        finalLabel = result.consensus_label;
+                    } else {
+                        const result = await predictWithAPI(text, selectedModel);
+                        predictions = [{
+                            name: selectedModel === 'lstm' ? 'LSTM Baseline' : 'CNN-Text Baseline',
+                            id: selectedModel,
+                            label: result.label,
+                            confidence: result.confidence,
+                            fakeScore: result.fake_score,
+                            realScore: result.real_score,
+                            inferenceTime: result.inference_time_ms
+                        }];
+                        avgConfidence = result.confidence;
+                        finalLabel = result.label;
+                    }
+                } else {
+                    // Fallback к симуляции
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    if (selectedModel === 'all') {
+                        // Compare all models (simulation)
+                        const models = ['lstm', 'cnn', 'bert', 'distilbert'];
+                        const modelNames = {
+                            'lstm': 'LSTM Baseline',
+                            'cnn': 'CNN-Text Baseline',
+                            'bert': 'BERT-base-uncased',
+                            'distilbert': 'DistilBERT'
+                        };
+                        
+                        predictions = models.map(model => ({
+                            name: modelNames[model],
+                            id: model,
+                            ...simulatePrediction(text, model)
+                        }));
+                        
+                        // Find best prediction
+                        avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
+                        const avgFakeScore = predictions.reduce((sum, p) => sum + p.fakeScore, 0) / predictions.length;
+                        finalLabel = avgFakeScore > 0.5 ? 'fake' : 'real';
+                    } else {
+                        // Single model simulation
+                        const prediction = simulatePrediction(text, selectedModel);
+                        predictions = [{
+                            name: selectedModel === 'lstm' ? 'LSTM Baseline' : 
+                                  selectedModel === 'cnn' ? 'CNN-Text Baseline' :
+                                  selectedModel === 'bert' ? 'BERT-base-uncased' : 'DistilBERT',
+                            id: selectedModel,
+                            ...prediction
+                        }];
+                        avgConfidence = prediction.confidence;
+                        finalLabel = prediction.label;
+                    }
+                }
                 
-                // Find best prediction
-                const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
-                const avgFakeScore = predictions.reduce((sum, p) => sum + p.fakeScore, 0) / predictions.length;
-                const finalLabel = avgFakeScore > 0.5 ? 'fake' : 'real';
-                
-                // Display main prediction
-                predictionResult.innerHTML = `
-                    <div class="prediction-card">
-                        <div class="prediction-label ${finalLabel}">
-                            ${finalLabel === 'fake' ? '❌' : '✅'} 
-                            ${finalLabel === 'fake' ? 'Fake News' : 'Real News'}
+                // Display results
+                if (selectedModel === 'all' || (selectedModel === 'lstm' || selectedModel === 'cnn')) {
+                    // Display main prediction
+                    const avgFakeScore = predictions.reduce((sum, p) => sum + (p.fakeScore || 0), 0) / predictions.length;
+                    const avgRealScore = predictions.reduce((sum, p) => sum + (p.realScore || 0), 0) / predictions.length;
+                    
+                    predictionResult.innerHTML = `
+                        <div class="prediction-card">
+                            ${selectedModel === 'all' ? '<h3 style="margin-bottom: 15px; color: #333;">Model Comparison Results</h3>' : ''}
+                            <div class="prediction-label ${finalLabel}">
+                                ${finalLabel === 'fake' ? '❌' : '✅'} 
+                                ${finalLabel === 'fake' ? 'Fake News' : 'Real News'}
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill ${finalLabel}" style="width: ${avgConfidence * 100}%">
+                                    ${(avgConfidence * 100).toFixed(1)}%
+                                </div>
+                            </div>
+                            <p style="color: #666; margin-top: 10px;">
+                                ${selectedModel === 'all' ? 
+                                    `Average confidence across models: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>` :
+                                    `Confidence: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>`
+                                }
+                                ${useRealAPI ? ' <span style="color: #51cf66;">(Real Model)</span>' : ' <span style="color: #ffc107;">(Simulation)</span>'}
+                            </p>
+                            ${selectedModel !== 'all' ? `
+                                <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div style="padding: 15px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #ff6b6b;">
+                                        <strong style="color: #ff6b6b;">Fake Probability:</strong>
+                                        <div style="font-size: 1.5em; margin-top: 5px;">${(avgFakeScore * 100).toFixed(1)}%</div>
+                                    </div>
+                                    <div style="padding: 15px; background: #f0fff4; border-radius: 8px; border-left: 4px solid #51cf66;">
+                                        <strong style="color: #51cf66;">Real Probability:</strong>
+                                        <div style="font-size: 1.5em; margin-top: 5px;">${(avgRealScore * 100).toFixed(1)}%</div>
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill ${finalLabel}" style="width: ${avgConfidence * 100}%">
-                                ${(avgConfidence * 100).toFixed(1)}%
+                    `;
+                
+                    // Display model comparison
+                    if (selectedModel === 'all') {
+                        modelComparison.innerHTML = `
+                            <div class="prediction-card">
+                                <h3 style="margin-bottom: 15px; color: #333;">Model Comparison</h3>
+                                <div class="model-comparison">
+                                    ${predictions.map(p => `
+                                        <div class="model-card">
+                                            <h4>${p.name}</h4>
+                                            <div class="prediction ${p.label}" style="color: ${p.label === 'fake' ? '#ff6b6b' : '#51cf66'}">
+                                                ${p.label === 'fake' ? '❌ Fake' : '✅ Real'}
+                                            </div>
+                                            <div class="confidence">Confidence: ${(p.confidence * 100).toFixed(1)}%</div>
+                                            ${p.inferenceTime ? `<div style="font-size: 0.8em; color: #999; margin-top: 5px;">Time: ${p.inferenceTime.toFixed(0)}ms</div>` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        modelComparison.innerHTML = '';
+                    }
+                    
+                    // Display attention visualization
+                    attentionVisualization.innerHTML = `
+                        <div class="prediction-card">
+                            <h3 style="margin-bottom: 15px; color: #333;">Model Attention Visualization</h3>
+                            <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                                Color highlighting shows word importance for prediction. 
+                                Brighter colors = more important words.
+                                ${useRealAPI ? '<br><span style="color: #51cf66;">Using real model predictions</span>' : '<br><span style="color: #ffc107;">Using simulated attention weights</span>'}
+                            </p>
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
+                                ${visualizeAttention(text, finalLabel)}
                             </div>
                         </div>
-                        <p style="color: #666; margin-top: 10px;">
-                            Average confidence across all models: <strong>${(avgConfidence * 100).toFixed(1)}%</strong>
-                        </p>
-                    </div>
-                `;
+                    `;
                 
-                // Display attention visualization
-                attentionVisualization.innerHTML = `
-                    <div class="prediction-card">
-                        <h3 style="margin-bottom: 15px; color: #333;">Model Attention Visualization</h3>
-                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
-                            Color highlighting shows word importance for prediction. 
-                            Brighter colors = more important words.
-                        </p>
-                        <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
-                            ${visualizeAttention(text, finalLabel)}
-                        </div>
-                    </div>
-                `;
-                
-                // Display model comparison
-                modelComparison.innerHTML = `
-                    <div class="prediction-card">
-                        <h3 style="margin-bottom: 15px; color: #333;">Model Comparison</h3>
-                        <div class="model-comparison">
-                            ${predictions.map(p => `
-                                <div class="model-card">
-                                    <h4>${p.name}</h4>
-                                    <div class="prediction ${p.label}" style="color: ${p.label === 'fake' ? '#ff6b6b' : '#51cf66'}">
-                                        ${p.label === 'fake' ? '❌ Fake' : '✅ Real'}
-                                    </div>
-                                    <div class="confidence">Confidence: ${(p.confidence * 100).toFixed(1)}%</div>
+                    // Display model comparison
+                    if (selectedModel === 'all') {
+                        modelComparison.innerHTML = `
+                            <div class="prediction-card">
+                                <h3 style="margin-bottom: 15px; color: #333;">Model Comparison</h3>
+                                <div class="model-comparison">
+                                    ${predictions.map(p => `
+                                        <div class="model-card">
+                                            <h4>${p.name}</h4>
+                                            <div class="prediction ${p.label}" style="color: ${p.label === 'fake' ? '#ff6b6b' : '#51cf66'}">
+                                                ${p.label === 'fake' ? '❌ Fake' : '✅ Real'}
+                                            </div>
+                                            <div class="confidence">Confidence: ${(p.confidence * 100).toFixed(1)}%</div>
+                                            ${p.inferenceTime ? `<div style="font-size: 0.8em; color: #999; margin-top: 5px;">Time: ${p.inferenceTime.toFixed(0)}ms</div>` : ''}
+                                        </div>
+                                    `).join('')}
                                 </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
+                            </div>
+                        `;
+                    } else {
+                        modelComparison.innerHTML = '';
+                    }
                 
                 // Display model stats if available
                 if (modelComparisonData) {
@@ -1104,40 +1266,7 @@
                         </div>
                     `;
                 }
-            } else {
-                // Single model prediction
-                const prediction = simulatePrediction(text, selectedModel);
-                const modelNames = {
-                    'lstm': 'LSTM Baseline',
-                    'cnn': 'CNN-Text Baseline',
-                    'bert': 'BERT-base-uncased',
-                    'distilbert': 'DistilBERT'
-                };
-                
-                predictionResult.innerHTML = `
-                    <div class="prediction-card">
-                        <h3 style="margin-bottom: 15px; color: #333;">Model: ${modelNames[selectedModel]}</h3>
-                        <div class="prediction-label ${prediction.label}">
-                            ${prediction.label === 'fake' ? '❌' : '✅'} 
-                            ${prediction.label === 'fake' ? 'Fake News' : 'Real News'}
-                        </div>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill ${prediction.label}" style="width: ${prediction.confidence * 100}%">
-                                ${(prediction.confidence * 100).toFixed(1)}%
-                            </div>
-                        </div>
-                        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div style="padding: 15px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #ff6b6b;">
-                                <strong style="color: #ff6b6b;">Fake Probability:</strong>
-                                <div style="font-size: 1.5em; margin-top: 5px;">${(prediction.fakeScore * 100).toFixed(1)}%</div>
-                            </div>
-                            <div style="padding: 15px; background: #f0fff4; border-radius: 8px; border-left: 4px solid #51cf66;">
-                                <strong style="color: #51cf66;">Real Probability:</strong>
-                                <div style="font-size: 1.5em; margin-top: 5px;">${(prediction.realScore * 100).toFixed(1)}%</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                }
                 
                 // Display attention visualization
                 attentionVisualization.innerHTML = `
@@ -1146,20 +1275,67 @@
                         <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
                             Color highlighting shows word importance for prediction. 
                             Brighter colors = more important words.
+                            ${useRealAPI ? '<br><span style="color: #51cf66;">Using real model predictions</span>' : '<br><span style="color: #ffc107;">Using simulated attention weights</span>'}
                         </p>
                         <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8; font-size: 16px;">
-                            ${visualizeAttention(text, prediction.label)}
+                            ${visualizeAttention(text, finalLabel)}
                         </div>
                     </div>
                 `;
                 
-                modelComparison.innerHTML = '';
-                modelStats.innerHTML = '';
+            } catch (error) {
+                // Обработка ошибок
+                predictionResult.innerHTML = `
+                    <div class="error">
+                        <strong>Ошибка при классификации:</strong><br>
+                        ${error.message}<br><br>
+                        ${useRealAPI ? 
+                            'Проверьте, что бэкенд запущен и модели загружены.' :
+                            'Попробуйте еще раз или проверьте подключение к API.'
+                        }
+                    </div>
+                `;
+                console.error('Classification error:', error);
             }
         }
         
         // Load test data on page load
         loadTestData();
+        
+        // Обновление статуса API
+        async function updateAPIStatus() {
+            const apiStatusEl = document.getElementById('apiStatus');
+            const modelStatusEl = document.getElementById('modelStatus');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    apiStatusEl.innerHTML = '✓ API подключен';
+                    apiStatusEl.style.color = '#51cf66';
+                    
+                    const modelsLoaded = [];
+                    if (data.models_loaded.lstm) modelsLoaded.push('LSTM');
+                    if (data.models_loaded.cnn) modelsLoaded.push('CNN');
+                    
+                    if (modelsLoaded.length > 0) {
+                        modelStatusEl.innerHTML = `✓ Модели загружены: ${modelsLoaded.join(', ')}`;
+                        modelStatusEl.style.color = '#51cf66';
+                    } else {
+                        modelStatusEl.innerHTML = '⚠ Модели не загружены, используется симуляция';
+                        modelStatusEl.style.color = '#ffc107';
+                    }
+                }
+            } catch (error) {
+                apiStatusEl.innerHTML = '⚠ API недоступен, используется симуляция';
+                apiStatusEl.style.color = '#ffc107';
+                modelStatusEl.innerHTML = 'Запустите бэкенд: <code>python -m backend.main</code> или <code>uvicorn backend.main:app</code>';
+                modelStatusEl.style.color = '#666';
+            }
+        }
+        
+        // Обновление статуса при загрузке страницы
+        setTimeout(updateAPIStatus, 1000);
     </script>
 </body>
 </html>
