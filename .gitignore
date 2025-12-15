@@ -46,7 +46,7 @@ data/raw/**/*.tsv
 *.csv
 *.tsv
 
-# Models (large files)
+# Models (large files) - исключены из git, но нужны для Railway
 models/*.pth
 models/*.pt
 models/*.h5
@@ -55,6 +55,12 @@ models/*.ckpt
 *.pt
 *.h5
 *.ckpt
+!models/.gitkeep
+
+# Vocab files (нужны для Railway, но могут быть большими)
+vocab/*.json
+vocab/*.txt
+!vocab/.gitkeep
 
 # Logs
 logs/
@@ -67,5 +73,12 @@ Thumbs.db
 # Project specific
 data/processed/*.csv
 !data/processed/.gitkeep
+
+# Environment files
+.env
+.env.local
+
+# Railway
+.railway/
 
 

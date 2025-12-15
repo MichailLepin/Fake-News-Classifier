@@ -21,11 +21,22 @@ app = FastAPI(
 )
 
 # CORS настройки для фронтенда
+# Получаем разрешенные домены из переменных окружения или используем по умолчанию
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080"
+).split(",")
+
+# Добавляем GitHub Pages домен если указан
+github_pages_domain = os.getenv("GITHUB_PAGES_DOMAIN")
+if github_pages_domain:
+    allowed_origins.append(github_pages_domain)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшене указать конкретные домены
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -61,12 +72,18 @@ async def startup_event():
     """Инициализация моделей при запуске приложения."""
     global model_loader, text_processor
     
-    print("Initializing models...")
+    print("=" * 60)
+    print("Initializing Fake News Classifier Backend...")
+    print("=" * 60)
     
-    # Определение путей
+    # Определение путей (Railway использует переменные окружения)
     models_dir = os.getenv("MODELS_DIR", "models")
     vocab_path = os.getenv("VOCAB_PATH", "vocab/vocab.json")
     glove_path = os.getenv("GLOVE_PATH", None)
+    
+    print(f"Models directory: {models_dir}")
+    print(f"Vocab path: {vocab_path}")
+    print(f"GLOVE path: {glove_path if glove_path else 'Not specified (using random init)'}")
     
     # Инициализация загрузчика моделей
     model_loader = ModelLoader(

@@ -800,7 +800,18 @@
         let modelComparisonData = null;
         
         // API Configuration
-        const API_BASE_URL = 'http://localhost:8000/api';
+        // Автоматическое определение API URL в зависимости от окружения
+        function getAPIBaseURL() {
+            // Если на GitHub Pages (замените YOUR_USERNAME на ваш GitHub username)
+            if (window.location.hostname.includes('github.io')) {
+                // Замените на URL вашего развернутого бэкенда
+                return 'https://YOUR_BACKEND_URL.com/api';  // TODO: Замените на реальный URL
+            }
+            // Если локально для разработки
+            return 'http://localhost:8000/api';
+        }
+        
+        const API_BASE_URL = getAPIBaseURL();
         let useRealAPI = false; // Переключение между реальным API и симуляцией
         
         // Проверка доступности API при загрузке

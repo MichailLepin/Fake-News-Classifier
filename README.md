@@ -86,7 +86,8 @@ Online misinformation spreads rapidly, influencing public perception in politics
 
 ### Deployment Target
 
-- FastAPI or TensorFlow.js for browser-based inference
+- **Backend**: FastAPI deployed on Railway.app
+- **Frontend**: GitHub Pages (static HTML/JS)
 
 ### Models
 
@@ -149,15 +150,81 @@ Online misinformation spreads rapidly, influencing public perception in politics
 │   ├── data/                  # Data processing modules
 │   ├── models/                # Model definitions
 │   └── utils/                 # Utility functions
+├── backend/                   # FastAPI backend application
+│   ├── main.py               # Main FastAPI app
+│   ├── models/               # Model definitions (LSTM, CNN)
+│   ├── preprocessing/        # Text preprocessing
+│   └── utils/                # Utilities (model loading)
 ├── scripts/                   # Standalone scripts
 ├── notebooks/                 # Jupyter notebooks for EDA and training
-├── models/                    # Saved trained models
+├── models/                    # Saved trained models (upload to Railway)
+├── vocab/                     # Vocabulary files (upload to Railway)
 ├── reports/                   # Analysis reports
 ├── docs/                      # GitHub Pages documentation and EDA dashboard
-│   ├── index.html             # EDA Dashboard (published on GitHub Pages)
+│   ├── index.html             # EDA Dashboard + Model Demo (published on GitHub Pages)
 │   └── data/                  # Data files for the dashboard
 ├── requirements.txt           # Python dependencies
+├── Procfile                  # Railway deployment command
+├── railway.json              # Railway configuration
+├── runtime.txt                # Python version
 └── README.md
+```
+
+## Deployment
+
+### Backend Deployment (Railway.app)
+
+1. **Prepare models and vocab:**
+   - Train models in `notebooks/lstm_training.ipynb` and `notebooks/cnn_training.ipynb`
+   - Save vocab using Cell 10-11 in notebooks
+   - Download `best_lstm_model.pth`, `best_cnn_model.pth`, and `vocab.json`
+
+2. **Deploy to Railway:**
+   - Sign up at https://railway.app
+   - Create new project → Deploy from GitHub repo
+   - Select this repository
+   - Railway will automatically detect Python and install dependencies
+   - Add environment variables:
+     ```
+     MODELS_DIR=models
+     VOCAB_PATH=vocab/vocab.json
+     ALLOWED_ORIGINS=https://YOUR_USERNAME.github.io
+     GITHUB_PAGES_DOMAIN=https://YOUR_USERNAME.github.io
+     ```
+   - Upload model files (`best_lstm_model.pth`, `best_cnn_model.pth`) and `vocab.json` via Railway dashboard or CLI
+   - Railway will provide a URL like `https://your-app.up.railway.app`
+
+3. **Update frontend:**
+   - Edit `docs/index.html`
+   - Find `getAPIBaseURL()` function (around line 803)
+   - Replace `YOUR_BACKEND_URL.com` with your Railway URL
+   - Commit and push changes
+
+**Подробные инструкции:** См. `RAILWAY_DEPLOYMENT.md`
+
+### Frontend Deployment (GitHub Pages)
+
+The frontend is automatically deployed via GitHub Pages from the `docs/` directory.
+
+## Local Development
+
+### Backend
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run backend
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend
+
+Open `docs/index.html` in a browser or use a local server:
+
+```bash
+cd docs
+python -m http.server 8080
 ```
 
 ## License

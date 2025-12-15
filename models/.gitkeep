@@ -1,0 +1,4 @@
+# Place trained model files here:
+# - best_lstm_model.pth
+# - best_cnn_model.pth
+
