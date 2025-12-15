@@ -7,7 +7,9 @@
 Перед деплоем убедитесь, что у вас есть:
 - ✅ `best_lstm_model.pth` - обученная LSTM модель
 - ✅ `best_cnn_model.pth` - обученная CNN модель  
-- ✅ `vocab.json` - словарь из ноутбука обучения
+- ✅ `best_bert_model/` - обученная BERT модель (папка)
+- ✅ `best_distilbert_model/` - обученная DistilBERT модель (папка)
+- ✅ `vocab.json` - словарь из ноутбука обучения (только для CNN/LSTM)
 
 **📖 Подробная инструкция по получению файлов:** См. [GET_MODELS_GUIDE.md](GET_MODELS_GUIDE.md)
 
@@ -50,7 +52,9 @@ python scripts/prepare_for_railway.py
    - Загрузите файлы в соответствующие папки:
      - `models/best_lstm_model.pth`
      - `models/best_cnn_model.pth`
-     - `vocab/vocab.json`
+     - `models/best_bert_model/` (вся папка)
+     - `models/best_distilbert_model/` (вся папка)
+     - `vocab/vocab.json` (только для CNN/LSTM)
 
    **Вариант B: Через Railway CLI**
    ```bash
@@ -66,6 +70,8 @@ python scripts/prepare_for_railway.py
    # Загрузите файлы
    railway up models/best_lstm_model.pth
    railway up models/best_cnn_model.pth
+   railway up models/best_bert_model/
+   railway up models/best_distilbert_model/
    railway up vocab/vocab.json
    ```
 
@@ -113,8 +119,10 @@ python scripts/prepare_for_railway.py
 │   └── utils/           # Утилиты
 ├── models/              # Обученные модели (загрузить в Railway)
 │   ├── best_lstm_model.pth
-│   └── best_cnn_model.pth
-├── vocab/               # Vocab файлы (загрузить в Railway)
+│   ├── best_cnn_model.pth
+│   ├── best_bert_model/      # Папка с файлами BERT
+│   └── best_distilbert_model/ # Папка с файлами DistilBERT
+├── vocab/               # Vocab файлы (загрузить в Railway, только для CNN/LSTM)
 │   └── vocab.json
 ├── requirements.txt     # Python зависимости
 ├── Procfile            # Команда запуска для Railway
