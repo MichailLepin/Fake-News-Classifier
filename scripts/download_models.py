@@ -126,9 +126,7 @@ def download_from_releases() -> bool:
                 
                 url = assets_dict[filename]
                 if download_file(url, destination):
-                    success_count += 1
-                    
-                    # Распаковываем zip файлы
+                    # Для zip файлов проверяем успешность распаковки перед увеличением счетчика
                     if filename.endswith('.zip') and filename in FOLDERS_TO_EXTRACT:
                         extract_path = Path(FOLDERS_TO_EXTRACT[filename])
                         print(f"  Распаковка {filename} в {extract_path}...")
@@ -136,11 +134,21 @@ def download_from_releases() -> bool:
                             with zipfile.ZipFile(destination, 'r') as zip_ref:
                                 zip_ref.extractall(extract_path.parent)
                             print(f"  ✓ Распаковано в {extract_path}")
-                            # Удаляем zip файл после распаковки
+                            # Удаляем zip файл только после успешной распаковки
                             destination.unlink()
                             print(f"  ✓ Временный файл {filename} удален")
+                            # Увеличиваем счетчик только после успешной распаковки
+                            success_count += 1
                         except Exception as e:
                             print(f"  ✗ Ошибка при распаковке: {e}")
+                            # Удаляем поврежденный zip файл
+                            if destination.exists():
+                                destination.unlink()
+                                print(f"  ✓ Поврежденный файл {filename} удален")
+                            # Не увеличиваем success_count - операция не удалась
+                    else:
+                        # Для обычных файлов увеличиваем счетчик сразу после загрузки
+                        success_count += 1
             else:
                 print(f"⚠ {filename} не найден в релизе")
         
@@ -186,9 +194,7 @@ def download_from_repo() -> bool:
             url = f"{GITHUB_CONTENT_URL}/{local_path}"
             
             if download_file(url, destination):
-                success_count += 1
-                
-                # Распаковываем zip файлы
+                # Для zip файлов проверяем успешность распаковки перед увеличением счетчика
                 if filename.endswith('.zip') and filename in FOLDERS_TO_EXTRACT:
                     extract_path = Path(FOLDERS_TO_EXTRACT[filename])
                     print(f"  Распаковка {filename} в {extract_path}...")
@@ -196,11 +202,21 @@ def download_from_repo() -> bool:
                         with zipfile.ZipFile(destination, 'r') as zip_ref:
                             zip_ref.extractall(extract_path.parent)
                         print(f"  ✓ Распаковано в {extract_path}")
-                        # Удаляем zip файл после распаковки
+                        # Удаляем zip файл только после успешной распаковки
                         destination.unlink()
                         print(f"  ✓ Временный файл {filename} удален")
+                        # Увеличиваем счетчик только после успешной распаковки
+                        success_count += 1
                     except Exception as e:
                         print(f"  ✗ Ошибка при распаковке: {e}")
+                        # Удаляем поврежденный zip файл
+                        if destination.exists():
+                            destination.unlink()
+                            print(f"  ✓ Поврежденный файл {filename} удален")
+                        # Не увеличиваем success_count - операция не удалась
+                else:
+                    # Для обычных файлов увеличиваем счетчик сразу после загрузки
+                    success_count += 1
         
         print()
         print("=" * 70)
@@ -243,13 +259,28 @@ def main():
     for filename, local_path in MODELS_TO_DOWNLOAD.items():
         destination = Path(local_path)
         
-        # Для zip файлов проверяем распакованную папку
+        # Для zip файлов проверяем распакованную папку и наличие файлов внутри
         if filename.endswith('.zip') and filename in FOLDERS_TO_EXTRACT:
             check_path = Path(FOLDERS_TO_EXTRACT[filename])
             if check_path.exists() and check_path.is_dir():
-                print(f"✓ {filename} → {check_path}/")
+                # Проверяем наличие обязательных файлов в папке модели
+                required_files = ['config.json', 'pytorch_model.bin']
+                missing_files = [f for f in required_files if not (check_path / f).exists()]
+                
+                if missing_files:
+                    print(f"✗ {filename} → {check_path}/ (папка существует, но отсутствуют файлы: {', '.join(missing_files)})")
+                    all_exist = False
+                else:
+                    # Подсчитываем размер папки
+                    total_size = sum(
+                        f.stat().st_size
+                        for f in check_path.rglob('*')
+                        if f.is_file()
+                    )
+                    size_mb = total_size / (1024 * 1024)
+                    print(f"✓ {filename} → {check_path}/ ({size_mb:.2f} MB, все файлы на месте)")
             else:
-                print(f"✗ {filename} → {check_path}/ (не найдено)")
+                print(f"✗ {filename} → {check_path}/ (папка не найдена)")
                 all_exist = False
         else:
             if destination.exists():
