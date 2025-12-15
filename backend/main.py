@@ -2,7 +2,7 @@
 
 import os
 import time
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import torch
 import numpy as np
 from fastapi import FastAPI, HTTPException
@@ -62,7 +62,7 @@ class PredictionResponse(BaseModel):
 
 class ModelComparisonResponse(BaseModel):
     """Ответ со сравнением моделей."""
-    predictions: List[Dict[str, any]]
+    predictions: List[Dict[str, Any]]
     average_confidence: float
     consensus_label: str
 
@@ -130,7 +130,7 @@ def predict_with_model(
     model: torch.nn.Module,
     text: str,
     device: torch.device
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Выполнение предсказания с моделью.
     

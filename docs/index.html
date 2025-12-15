@@ -953,10 +953,10 @@
         // API Configuration
         // Автоматическое определение API URL в зависимости от окружения
         function getAPIBaseURL() {
-            // Если на GitHub Pages (замените YOUR_USERNAME на ваш GitHub username)
+            // Если на GitHub Pages
             if (window.location.hostname.includes('github.io')) {
-                // Замените на URL вашего развернутого бэкенда
-                return 'https://YOUR_BACKEND_URL.com/api';  // TODO: Замените на реальный URL
+                // URL развернутого бэкенда на Railway
+                return 'https://fake-news-classifier-production.up.railway.app/api';
             }
             // Если локально для разработки
             return 'http://localhost:8000/api';
